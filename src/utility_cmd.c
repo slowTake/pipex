@@ -1,17 +1,12 @@
+#include "libft.h"
 #include "pipex.h"
 
-// int	cmd_check(char *argv[], char *envp[])
-// {
-// 	int	valid;
+char	**cmd_parse(char *cmd_str)
+{
+	return (ft_split(cmd_str, ' '));
+}
 
-// 	valid = 0;
-// 	if (valid != "correct path placeholder")
-// 		return (-1);
-// 	if (valid == "correct path placeholder")
-// 		return (1);
-// }
-
-int	cmd_findpath(char *argv[], char *envp[])
+int	cmd_findpath(char *envp[])
 {
 	int	i;
 
@@ -41,7 +36,7 @@ char	**cmd_split(char *cmd_path)
 	}
 	count++;
 	paths = malloc(sizeof(char *) * (count + 1));
-	split(cmd_path, ":"); // replace with ft_split <<<<<<<<<<<<
+	ft_split(cmd_path, ":");
 	return (paths);
 }
 
@@ -49,7 +44,7 @@ char	*cmd_check(char *envp[], char *cmd)
 {
 	char	*path_env;
 	char	**paths;
-	char	*full_paths;
+	char	*full_path;
 	int		i;
 
 	i = 0;
@@ -59,4 +54,31 @@ char	*cmd_check(char *envp[], char *cmd)
 			return (strdup(cmd));
 		return (NULL);
 	}
+	path_env = cmd_findpath(envp);
+	if (!path_env)
+		return (NULL);
+	paths = cmd_split(path_env);
+	while (paths[i])
+	{
+		full_path = create_full_path(paths[i], cmd);
+		if (access(full_path, X_OK) == 0)
+		{
+			free_array(paths);
+			return (full_path);
+		}
+	}
+}
+char	*create_full_path(char *directory, char *cmd)
+{
+	int len;
+	char *full_path;
+
+	len = ft_strlen(directory) + ft_strlen(cmd) + 2;
+	full_path = malloc(len);
+
+	strcpy();
+	strcpy();
+	strcpy();
+
+	return (full_path);
 }

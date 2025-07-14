@@ -6,7 +6,7 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 10:43:38 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/10 10:45:16 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/14 15:57:44 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,16 +24,16 @@ void	kid_one(char *argv[], char *envp[], int *pipefd)
 	}
 	dup2(infile, STDIN_FILENO);
 	close(infile);
-	dup2(pipefd[1], STDOUT_FILENO);
-	close(pipefd[0]);
-	close(pipefd[1]);
-	execve(cmd_findpath, argv[2], envp);
+	dup2(pipefd[WRITE], STDOUT_FILENO);
+	close(pipefd[READ]);
+	close(pipefd[WRITE]);
+	execve(cmd_findpath, &argv[2], envp);
 }
 void	kid_two(char *argv[], char *envp[], int *pipefd)
 {
 	int	outfile;
 
-	outfile = open(argv[4], O_RDONLY);
+	outfile = open(argv[4], O_CREAT | O_TRUNC | O_WRONLY);
 	if (outfile == -1)
 	{
 		perror("outfile");
@@ -41,10 +41,10 @@ void	kid_two(char *argv[], char *envp[], int *pipefd)
 	}
 	dup2(outfile, STDIN_FILENO);
 	close(outfile);
-	dup2(pipefd[0], STDOUT_FILENO);
-	close(pipefd[0]);
-	close(pipefd[1]);
-	execve(cmd_findpath, argv[3], envp);
+	dup2(pipefd[READ], STDOUT_FILENO);
+	close(pipefd[READ]);
+	close(pipefd[WRITE]);
+	execve(cmd_findpath, &argv[3], envp);
 }
 
 int	main(int argc, char *argv[], char *envp[])
@@ -58,12 +58,17 @@ int	main(int argc, char *argv[], char *envp[])
 		perror("pipe fail");
 		return (-1);
 	}
+	if (argc != 5)
+	{
+		perror("argc");
+		return (-1);
+	}
 	pid1 = fork();
 	if (pid1 == 0)
-		kid_one(argv[2], envp, pipefd[0]);
+		kid_one(&argv[2], envp, &pipefd[WRITE]);
 	pid2 = fork();
 	if (pid2 == 0)
-		kid_two(argv[3], envp, pipefd[1]);
+		kid_two(&argv[3], envp, &pipefd[READ]);
 	waitpid(pid1, NULL, 0);
 	waitpid(pid2, NULL, 0);
 	return (0);
