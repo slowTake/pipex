@@ -6,45 +6,72 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 10:43:38 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/14 15:57:44 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/16 10:34:07 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <pipex.h>
+#include "pipex.h"
+
+void	cleanup_and_exit(char **cmd_args, char *cmd_path, int exit_code)
+{
+	if (*cmd_args)
+		free_cmd_args(cmd_args);
+	if (cmd_path)
+		free(cmd_path);
+	exit(exit_code);
+}
 
 void	kid_one(char *argv[], char *envp[], int *pipefd)
 {
-	int	infile;
+	int		infile;
+	char	*cmd_path;
+	char	**cmd_args;
 
+	cmd_args = cmd_parse(argv[2]);
+	cmd_path = cmd_check(&cmd_args[0], *envp);
+	if (!cmd_path)
+	{
+		ft_putstr_fd("Command not found", 2);
+		ft_putstr_fd(cmd_args[0], 2);
+		ft_putstr_fd("\n", 2);
+		cleanup_and_exit(cmd_args, NULL, 127);
+	}
 	infile = open(argv[1], O_RDONLY);
 	if (infile == -1)
-	{
-		perror("infile");
-		exit(1);
-	}
+		cleanup_and_exit(cmd_args, cmd_path, 1);
 	dup2(infile, STDIN_FILENO);
 	close(infile);
-	dup2(pipefd[WRITE], STDOUT_FILENO);
-	close(pipefd[READ]);
-	close(pipefd[WRITE]);
-	execve(cmd_findpath, &argv[2], envp);
+	dup2(pipefd[1], STDOUT_FILENO);
+	close(pipefd[0]);
+	close(pipefd[1]);
+	execve(cmd_path, cmd_args, *envp);
+	cleanup_and_exit(cmd_args, cmd_path, 1);
 }
 void	kid_two(char *argv[], char *envp[], int *pipefd)
 {
-	int	outfile;
+	int		outfile;
+	char	*cmd_path;
+	char	**cmd_args;
 
-	outfile = open(argv[4], O_CREAT | O_TRUNC | O_WRONLY);
-	if (outfile == -1)
+	cmd_args = cmd_parse(argv[3]);
+	cmd_path = cmd_check(&cmd_args[0], *envp);
+	if (!cmd_path)
 	{
-		perror("outfile");
-		exit(1);
+		ft_putstr_fd("Command not found", 2);
+		ft_putstr_fd(cmd_args[0], 2);
+		ft_putstr_fd("\n", 2);
+		cleanup_and_exit(cmd_args, NULL, 127);
 	}
-	dup2(outfile, STDIN_FILENO);
+	outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (outfile == -1)
+		cleanup_and_exit(cmd_args, cmd_path, 1);
+	dup2(pipefd[0], STDIN_FILENO);
+	dup2(outfile, STDOUT_FILENO);
 	close(outfile);
-	dup2(pipefd[READ], STDOUT_FILENO);
-	close(pipefd[READ]);
-	close(pipefd[WRITE]);
-	execve(cmd_findpath, &argv[3], envp);
+	close(pipefd[0]);
+	close(pipefd[1]);
+	execve(cmd_path, cmd_args, *envp);
+	cleanup_and_exit(cmd_args, cmd_path, 1);
 }
 
 int	main(int argc, char *argv[], char *envp[])
@@ -53,22 +80,24 @@ int	main(int argc, char *argv[], char *envp[])
 	pid_t	pid1;
 	pid_t	pid2;
 
-	if (pipe(pipefd) < 0)
-	{
-		perror("pipe fail");
-		return (-1);
-	}
 	if (argc != 5)
 	{
-		perror("argc");
-		return (-1);
+		ft_putstr_fd("Usage: ./pipex file1 cmd1 cmd2 file2\n", 2);
+		return (1);
+	}
+	if (pipe(pipefd) < 0)
+	{
+		perror("pipe");
+		return (1);
 	}
 	pid1 = fork();
 	if (pid1 == 0)
-		kid_one(&argv[2], envp, &pipefd[WRITE]);
+		kid_one(argv, envp, pipefd);
 	pid2 = fork();
 	if (pid2 == 0)
-		kid_two(&argv[3], envp, &pipefd[READ]);
+		kid_two(argv, envp, pipefd);
+	close(pipefd[0]);
+	close(pipefd[1]);
 	waitpid(pid1, NULL, 0);
 	waitpid(pid2, NULL, 0);
 	return (0);

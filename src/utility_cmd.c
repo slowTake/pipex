@@ -6,7 +6,7 @@ char	**cmd_parse(char *cmd_str)
 	return (ft_split(cmd_str, ' '));
 }
 
-int	cmd_findpath(char *envp[])
+char	*cmd_findpath(char *envp[])
 {
 	int	i;
 
@@ -76,9 +76,9 @@ char	*create_full_path(char *directory, char *cmd)
 	len = ft_strlen(directory) + ft_strlen(cmd) + 2;
 	full_path = malloc(len);
 
-	strcpy();
-	strcpy();
-	strcpy();
+	strcpy(full_path, directory);
+	strcpy(full_path, "/");
+	strcpy(full_path, cmd);
 
 	return (full_path);
 }
