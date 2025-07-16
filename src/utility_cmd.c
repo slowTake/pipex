@@ -1,10 +1,16 @@
-#include "libft.h"
-#include "pipex.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utility_cmd.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/16 11:19:20 by pnurmi            #+#    #+#             */
+/*   Updated: 2025/07/16 11:35:48 by pnurmi           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-char	**cmd_parse(char *cmd_str)
-{
-	return (ft_split(cmd_str, ' '));
-}
+#include "pipex.h"
 
 char	*cmd_findpath(char *envp[])
 {
@@ -14,71 +20,72 @@ char	*cmd_findpath(char *envp[])
 	while (envp[i])
 	{
 		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
-			return (envp[i] + 5); // return the path location
+			return (envp[i] + 5);
 		i++;
 	}
 	return (NULL);
 }
 
-char	**cmd_split(char *cmd_path)
+char	*create_full_path(char *directory, char *cmd)
 {
-	char	**paths;
-	int		count;
+	char	*temp;
+	char	*full_path;
+
+	temp = ft_strjoin(directory, "/");
+	if (!temp)
+		return (NULL);
+	full_path = ft_strjoin(temp, cmd);
+	free(temp);
+	return (full_path);
+}
+
+char	*check_absolute_path(char *cmd)
+{
+	if (cmd[0] == '/' || cmd[0] == '.')
+	{
+		if (access(cmd, X_OK) == 0)
+			return (ft_strdup(cmd));
+		return (NULL);
+	}
+	return (NULL);
+}
+
+char	*cmd_path_search(char **paths, char *cmd)
+{
+	char	*full_path;
 	int		i;
 
-	count = 0;
 	i = 0;
-	while (cmd_path[i])
+	while (paths[i])
 	{
-		if (cmd_path[i] == ':')
-			count++;
+		full_path = create_full_path(paths[i], cmd);
+		if (full_path && access(full_path, X_OK) == 0)
+		{
+			cmd_freeargs(paths);
+			return (full_path);
+		}
+		if (full_path)
+			free(full_path);
 		i++;
 	}
-	count++;
-	paths = malloc(sizeof(char *) * (count + 1));
-	ft_split(cmd_path, ":");
-	return (paths);
+	cmd_freeargs(paths);
+	return (NULL);
 }
 
 char	*cmd_check(char *envp[], char *cmd)
 {
 	char	*path_env;
 	char	**paths;
-	char	*full_path;
-	int		i;
+	char	*result;
 
-	i = 0;
-	if (cmd[i] == '/' || cmd[i] == '.')
-	{
-		if (access(cmd, X_OK) == 0)
-			return (strdup(cmd));
-		return (NULL);
-	}
-	path_env = cmd_findpath(envp);
+	result = check_absolute_path(cmd);
+	if (result)
+		return (result);
+	path_env = (cmd_findpath(envp));
 	if (!path_env)
 		return (NULL);
-	paths = cmd_split(path_env);
-	while (paths[i])
-	{
-		full_path = create_full_path(paths[i], cmd);
-		if (access(full_path, X_OK) == 0)
-		{
-			free_array(paths);
-			return (full_path);
-		}
-	}
-}
-char	*create_full_path(char *directory, char *cmd)
-{
-	int len;
-	char *full_path;
-
-	len = ft_strlen(directory) + ft_strlen(cmd) + 2;
-	full_path = malloc(len);
-
-	strcpy(full_path, directory);
-	strcpy(full_path, "/");
-	strcpy(full_path, cmd);
-
-	return (full_path);
+	paths = ft_split(path_env, ':');
+	if (!paths)
+		return (NULL);
+	return (cmd_path_search(paths, cmd));
 }

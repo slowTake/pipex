@@ -1,69 +1,43 @@
-#include <pipex.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utility_fts.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/16 11:19:15 by pnurmi            #+#    #+#             */
+/*   Updated: 2025/07/16 11:38:15 by pnurmi           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-int	ft_strncmp(const char *s1, const char *s2, size_t n)
+#include "libft.h"
+#include "pipex.h"
+
+char	**cmd_parse(char *cmd_str)
 {
-	size_t	i;
-
-	i = 0;
-	while (i < n)
-	{
-		if (s1[i] == s2[i])
-		{
-			i++;
-		}
-		else
-			return (s1[i] - s2[i]);
-	}
-	return (0);
+	return (ft_split(cmd_str, ' '));
 }
-char	*ft_strchr(const char *s, int c)
+
+void	cmd_freeargs(char **args)
 {
-	size_t	i;
+	int	i;
 
 	i = 0;
-	while (s[i] != '\0')
+	if (!args)
+		return ;
+	while (args[i])
 	{
-		if (s[i] == (char)c)
-		{
-			return ((char *)&s[i]);
-		}
+		free(args[i]);
 		i++;
 	}
-	if ((char)c == '\0')
-	{
-		return ((char *)&s[i]);
-	}
-	return (NULL);
+	free(args);
 }
-size_t	ft_strlen(const char *s)
-{
-	size_t	i;
 
-	i = 0;
-	while (s[i])
-	{
-		i++;
-	}
-	return (i);
-}
-void	*ft_memcpy(void *dst, const void *src, size_t n)
+void	cleanup_and_exit(char **cmd_args, char *cmd_path, int exit_code)
 {
-	unsigned char	*tmp_dst;
-	unsigned char	*tmp_src;
-	size_t			i;
-
-	tmp_dst = (unsigned char *)dst;
-	tmp_src = (unsigned char *)src;
-	i = 0;
-	while (i < n)
-	{
-		tmp_dst[i] = tmp_src[i];
-		i++;
-	}
-	return (dst);
-}
-void	ft_putstr_fd(char *s, int fd)
-{
-	if (s)
-		write(fd, s, ft_strlen(s));
+	if (cmd_args)
+		cmd_freeargs(cmd_args);
+	if (cmd_path)
+		free(cmd_path);
+	exit(exit_code);
 }

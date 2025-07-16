@@ -6,20 +6,11 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 10:43:38 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/16 10:34:07 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/16 13:35:18 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-
-void	cleanup_and_exit(char **cmd_args, char *cmd_path, int exit_code)
-{
-	if (*cmd_args)
-		free_cmd_args(cmd_args);
-	if (cmd_path)
-		free(cmd_path);
-	exit(exit_code);
-}
 
 void	kid_one(char *argv[], char *envp[], int *pipefd)
 {
@@ -44,7 +35,7 @@ void	kid_one(char *argv[], char *envp[], int *pipefd)
 	dup2(pipefd[1], STDOUT_FILENO);
 	close(pipefd[0]);
 	close(pipefd[1]);
-	execve(cmd_path, cmd_args, *envp);
+	execve(cmd_path, cmd_args, envp);
 	cleanup_and_exit(cmd_args, cmd_path, 1);
 }
 void	kid_two(char *argv[], char *envp[], int *pipefd)
@@ -70,7 +61,7 @@ void	kid_two(char *argv[], char *envp[], int *pipefd)
 	close(outfile);
 	close(pipefd[0]);
 	close(pipefd[1]);
-	execve(cmd_path, cmd_args, *envp);
+	execve(cmd_path, cmd_args, envp);
 	cleanup_and_exit(cmd_args, cmd_path, 1);
 }
 
