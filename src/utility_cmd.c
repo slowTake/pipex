@@ -6,7 +6,7 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/16 11:19:20 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/16 15:43:54 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/17 17:22:37 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,15 @@ char	*create_full_path(char *directory, char *cmd)
 		return (NULL);
 	full_path = ft_strjoin(temp, cmd);
 	free(temp);
+	if (!full_path)
+		return (NULL);
 	return (full_path);
 }
 
 char	*check_absolute_path(char *cmd)
 {
+	if (cmd == NULL)
+		return (NULL);
 	if (cmd[0] == '/' || cmd[0] == '.')
 	{
 		if (access(cmd, X_OK) == 0)
@@ -56,6 +60,8 @@ char	*cmd_path_search(char **paths, char *cmd)
 	int		i;
 
 	i = 0;
+	if (cmd == NULL)
+		return (NULL);
 	while (paths[i])
 	{
 		full_path = create_full_path(paths[i], cmd);
@@ -86,6 +92,6 @@ char	*cmd_check(char *envp[], char *cmd)
 		return (NULL);
 	paths = ft_split(path_env, ':');
 	if (!paths)
-		return (NULL);
+		return (free(result), NULL);
 	return (cmd_path_search(paths, cmd));
 }
