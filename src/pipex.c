@@ -6,7 +6,7 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 10:43:38 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/16 15:43:53 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/17 10:11:44 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ void	kid_one(char *argv[], char *envp[], int *pipefd)
 	perror("execve");
 	cleanup_and_exit(cmd_args, cmd_path, 1);
 }
+
 void	kid_two(char *argv[], char *envp[], int *pipefd)
 {
 	int		outfile;
@@ -83,10 +84,10 @@ int	main(int argc, char *argv[], char *envp[])
 		perror("pipe");
 		return (1);
 	}
-	pid1 = fork();
+	pid1 = cmd_fork();
 	if (pid1 == 0)
 		kid_one(argv, envp, pipefd);
-	pid2 = fork();
+	pid2 = cmd_fork();
 	if (pid2 == 0)
 		kid_two(argv, envp, pipefd);
 	close(pipefd[0]);

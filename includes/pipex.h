@@ -19,5 +19,7 @@ char	**cmd_parse(char *cmd_str);
 void	kid_one(char *argv[], char *envp[], int *pipefd);
 void	cleanup_and_exit(char **cmd_args, char *cmd_path, int exit_code);
 void	kid_two(char *argv[], char *envp[], int *pipefd);
+void	cmd_freeargs(char **args);
+pid_t	cmd_fork(void);
 
 #endif

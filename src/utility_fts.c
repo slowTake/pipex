@@ -6,11 +6,10 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/16 11:19:15 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/16 15:43:55 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/17 10:11:42 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
 #include "pipex.h"
 
 char	**cmd_parse(char *cmd_str)
@@ -40,4 +39,17 @@ void	cleanup_and_exit(char **cmd_args, char *cmd_path, int exit_code)
 	if (cmd_path)
 		free(cmd_path);
 	exit(exit_code);
+}
+
+pid_t	cmd_fork(void)
+{
+	pid_t pid;
+
+	pid = fork();
+	if (pid < 0)
+	{
+		perror("fork");
+		exit(1);
+	}
+	return (pid);
 }
