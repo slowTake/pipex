@@ -6,7 +6,7 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/16 11:19:15 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/17 18:23:00 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/18 09:52:05 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,7 @@
 
 char	**cmd_parse(char *cmd_str)
 {
-	// char	**cmd_args;
-	// cmd_args = ft_split(cmd_str, ' ');
-	// if (!cmd_args[0])
-	// {
-	// 	ft_putstr_fd(cmd_args[0], 2);
-	// 	ft_putstr_fd(": command not found", 2);
-	// 	// close pipes!
-	// 	// free other command
-	// 	exit(1);
-	// }
 	return (ft_split(cmd_str, ' '));
-	// check if parse successful
-	// if exit closes pipe/fd
-	// check if command makes sense +
 }
 
 void	cmd_freeargs(char **args)
