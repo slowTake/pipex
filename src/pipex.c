@@ -24,12 +24,7 @@ void	kid_one(char *argv[], char *envp[], int *pipefd)
 	cmd_args = cmd_parse(argv[2]);
 	cmd_path = cmd_check(envp, cmd_args[0]);
 	if (!cmd_path)
-	{
-		ft_putstr_fd(cmd_args[0], 2);
-		ft_putstr_fd(": command not found", 2);
-		ft_putstr_fd("\n", 2);
-		cleanup_and_exit(cmd_args, NULL, 127);
-	}
+		no_path(cmd_args, 127);
 	infile = open(argv[1], O_RDONLY);
 	if (infile == -1)
 		cleanup_and_exit(cmd_args, cmd_path, 1);
@@ -52,12 +47,7 @@ void	kid_two(char *argv[], char *envp[], int *pipefd)
 	cmd_args = cmd_parse(argv[3]);
 	cmd_path = cmd_check(envp, cmd_args[0]);
 	if (!cmd_path)
-	{
-		ft_putstr_fd(cmd_args[0], 2);
-		ft_putstr_fd(": command not found", 2);
-		ft_putstr_fd("\n", 2);
-		cleanup_and_exit(cmd_args, NULL, 127);
-	}
+		no_path(cmd_args, 127);
 	outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (outfile == -1)
 		cleanup_and_exit(cmd_args, cmd_path, 1);
@@ -78,10 +68,7 @@ int	main(int argc, char *argv[], char *envp[])
 	if (argc != 5)
 		cmd_error_msg("Usage: ./pipex file1 cmd1 cmd2 file2\n", 1);
 	if (pipe(pipefd) < 0)
-	{
-		perror("pipe");
-		return (1);
-	}
+		bad_pipe("pipe");
 	pid1 = cmd_fork(pipefd);
 	if (pid1 == 0)
 		kid_one(argv, envp, pipefd);
@@ -92,7 +79,7 @@ int	main(int argc, char *argv[], char *envp[])
 	close(pipefd[1]);
 	waitpid(pid1, &status, 0);
 	waitpid(pid2, &status, 0);
-	exit(WEXITSTATUS(status));
+	exit(WEXITSTATUS(status)); //check exit status 1 and 127 when 1 fails
 }
 
 // exit status for waitpid and parent exit
