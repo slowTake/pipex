@@ -6,7 +6,7 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/18 09:52:21 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/18 09:52:23 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/22 10:53:58 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,10 @@ void	kid_two(char *argv[], char *envp[], int *pipefd);
 void	cmd_freeargs(char **args);
 pid_t	cmd_fork(int pipefd[2]);
 void	cmd_error_msg(char *msg, int exit_code);
+void	bad_pipe(char *msg);
+void	no_path(char **cmd_argv, int exit_code);
+void	no_infile(char *filename, char **cmd_argv, char *cmd_paths,
+			int exit_code);
+void	bad_dup(char *msg, int exit_code);
 
 #endif
