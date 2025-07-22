@@ -6,7 +6,7 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 10:43:38 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/18 09:57:12 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/22 10:13:51 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ void	kid_one(char *argv[], char *envp[], int *pipefd)
 		no_path(cmd_args, 127);
 	infile = open(argv[1], O_RDONLY);
 	if (infile == -1)
-		cleanup_and_exit(cmd_args, cmd_path, 1);
+		// cleanup_and_exit(cmd_args, cmd_path, 1);
+		no_infile(cmd_args, cmd_path, 1);
 	dup2(infile, STDIN_FILENO);
 	close(infile);
 	execve(cmd_path, cmd_args, envp);
@@ -63,7 +64,8 @@ int	main(int argc, char *argv[], char *envp[])
 	int		pipefd[2];
 	pid_t	pid1;
 	pid_t	pid2;
-	int		status;
+	int		status1;
+	int		status2;
 
 	if (argc != 5)
 		cmd_error_msg("Usage: ./pipex file1 cmd1 cmd2 file2\n", 1);
@@ -77,9 +79,11 @@ int	main(int argc, char *argv[], char *envp[])
 		kid_two(argv, envp, pipefd);
 	close(pipefd[0]);
 	close(pipefd[1]);
-	waitpid(pid1, &status, 0);
-	waitpid(pid2, &status, 0);
-	exit(WEXITSTATUS(status)); //check exit status 1 and 127 when 1 fails
+	waitpid(pid1, &status1, 0);
+	waitpid(pid2, &status2, 0);
+	if (WIFEXITED(status2) && WEXITSTATUS(status2) != 0)
+		exit(WEXITSTATUS(status2));
+	if (WIFEXITED(status1) && WEXITSTATUS(status1) != 0)
+		exit(WEXITSTATUS(status1));
+	exit(0);
 }
-
-// exit status for waitpid and parent exit
