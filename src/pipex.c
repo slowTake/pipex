@@ -6,7 +6,7 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 10:43:38 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/22 10:13:51 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/22 12:31:37 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ void	kid_one(char *argv[], char *envp[], int *pipefd)
 	char	*cmd_path;
 	char	**cmd_args;
 
-	dup2(pipefd[1], STDOUT_FILENO);
+	if (dup2(pipefd[1], STDOUT_FILENO) == -1)
+		bad_dup("dup2", 1);
 	close(pipefd[0]);
 	close(pipefd[1]);
 	cmd_args = cmd_parse(argv[2]);
@@ -27,9 +28,9 @@ void	kid_one(char *argv[], char *envp[], int *pipefd)
 		no_path(cmd_args, 127);
 	infile = open(argv[1], O_RDONLY);
 	if (infile == -1)
-		// cleanup_and_exit(cmd_args, cmd_path, 1);
-		no_infile(cmd_args, cmd_path, 1);
-	dup2(infile, STDIN_FILENO);
+		no_infile(argv[1], cmd_args, cmd_path, 1);
+	if (dup2(infile, STDIN_FILENO) == -1)
+		bad_dup("dup2", 1);
 	close(infile);
 	execve(cmd_path, cmd_args, envp);
 	perror("execve");
@@ -42,7 +43,8 @@ void	kid_two(char *argv[], char *envp[], int *pipefd)
 	char	*cmd_path;
 	char	**cmd_args;
 
-	dup2(pipefd[0], STDIN_FILENO);
+	if (dup2(pipefd[0], STDIN_FILENO) == -1)
+		bad_dup("dup2", 1);
 	close(pipefd[0]);
 	close(pipefd[1]);
 	cmd_args = cmd_parse(argv[3]);
@@ -52,7 +54,8 @@ void	kid_two(char *argv[], char *envp[], int *pipefd)
 	outfile = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (outfile == -1)
 		cleanup_and_exit(cmd_args, cmd_path, 1);
-	dup2(outfile, STDOUT_FILENO);
+	if (dup2(outfile, STDOUT_FILENO) == -1)
+		bad_dup("dup2", 1);
 	close(outfile);
 	execve(cmd_path, cmd_args, envp);
 	perror("execve");
@@ -81,9 +84,7 @@ int	main(int argc, char *argv[], char *envp[])
 	close(pipefd[1]);
 	waitpid(pid1, &status1, 0);
 	waitpid(pid2, &status2, 0);
-	if (WIFEXITED(status2) && WEXITSTATUS(status2) != 0)
-		exit(WEXITSTATUS(status2));
-	if (WIFEXITED(status1) && WEXITSTATUS(status1) != 0)
-		exit(WEXITSTATUS(status1));
-	exit(0);
+	if (WIFEXITED(status2))
+		return (WEXITSTATUS(status2));
+	return (1);
 }
