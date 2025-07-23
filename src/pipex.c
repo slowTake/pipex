@@ -6,7 +6,7 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 10:43:38 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/22 12:31:37 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/23 11:38:16 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ void	kid_one(char *argv[], char *envp[], int *pipefd)
 	close(pipefd[0]);
 	close(pipefd[1]);
 	cmd_args = cmd_parse(argv[2]);
+	if (!cmd_args)
+		cleanup_and_exit(NULL, NULL, 127);
 	cmd_path = cmd_check(envp, cmd_args[0]);
 	if (!cmd_path)
 		no_path(cmd_args, 127);
@@ -48,6 +50,8 @@ void	kid_two(char *argv[], char *envp[], int *pipefd)
 	close(pipefd[0]);
 	close(pipefd[1]);
 	cmd_args = cmd_parse(argv[3]);
+	if (!cmd_args)
+		cleanup_and_exit(NULL, NULL, 127);
 	cmd_path = cmd_check(envp, cmd_args[0]);
 	if (!cmd_path)
 		no_path(cmd_args, 127);

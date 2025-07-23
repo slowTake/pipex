@@ -6,7 +6,7 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/16 11:19:15 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/18 09:52:05 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/23 11:38:17 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,23 @@
 
 char	**cmd_parse(char *cmd_str)
 {
-	return (ft_split(cmd_str, ' '));
+	char	**args;
+	int		i;
+
+	i = 0;
+	if (!cmd_str)
+		return (NULL);
+	while ((cmd_str[i] && cmd_str[i] == ' ') || cmd_str[i] == '\t')
+		i++;
+	if (cmd_str[i] == '\0')
+		return (NULL);
+	args = ft_split(cmd_str, ' ');
+	if (!args || !args[0])
+	{
+		cmd_freeargs(args);
+		return (NULL);
+	}
+	return (args);
 }
 
 void	cmd_freeargs(char **args)
