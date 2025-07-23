@@ -3,7 +3,8 @@ NAME = pipex
 # Pipex source files
 SRCS = src/pipex.c \
         src/utility_cmd.c \
-        src/utility_fts.c
+        src/utility_fts.c \
+        src/error.c 
 
 # Object directory for all object files (pipex and libft)
 OBJ_DIR = .objs

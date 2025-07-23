@@ -6,7 +6,7 @@
 /*   By: pnurmi <pnurmi@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 09:31:40 by pnurmi            #+#    #+#             */
-/*   Updated: 2025/07/22 10:53:37 by pnurmi           ###   ########.fr       */
+/*   Updated: 2025/07/23 10:24:38 by pnurmi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,10 @@ void	bad_pipe(char *msg)
 void	no_infile(char *filename, char **cmd_argv, char *cmd_paths,
 		int exit_code)
 {
-	ft_putstr_fd(filename, 2);
-	ft_putstr_fd(": No such file or directory\n", 2);
+	perror(filename);
 	cleanup_and_exit(cmd_argv, cmd_paths, exit_code);
 }
+
 void	bad_dup(char *msg, int exit_code)
 {
 	perror(msg);
